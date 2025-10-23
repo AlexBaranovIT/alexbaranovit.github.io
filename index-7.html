@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<!--
+  Energizing Arm Fist Flow – Telegram WebApp breathing exercise
+
+  This simple web application provides a guided 1–3‑minute breathing
+  exercise designed to wake you up and boost your energy.  The user
+  flow comprises three main screens: a start screen with a call‑to‑action
+  button, a short instructional animation showing how to move your arms
+  during the exercise, and the exercise screen itself featuring a
+  pulsating circle and audible cues for inhale and exhale.  After
+  completing the exercise the user sees a congratulatory message with
+  options to repeat or finish.  The design is intentionally
+  minimalist with a dark theme that works well inside Telegram's
+  WebView on both mobile and desktop.  All styling uses the Tailwind
+  utility classes loaded via CDN.
+
+  To test this file locally simply open it in a browser.  When used
+  inside Telegram the Telegram WebApp API is loaded automatically via
+  `telegram-web-app.js`.
+-->
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Проснись и зарядись!</title>
+    <!-- Telegram Web App SDK (required when loaded in Telegram) -->
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+    <style>
+      /* Base styles */
+      body {
+        background-color: #111827; /* dark slate */
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 1rem;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 1.5rem;
+        line-height: 1.2;
+      }
+      .button {
+        background-color: #3b82f6; /* blue-500 */
+        color: #ffffff;
+        border: none;
+        border-radius: 9999px;
+        padding: 1rem 2rem;
+        font-size: 1.25rem;
+        cursor: pointer;
+        margin: 0.25rem;
+        transition: background-color 0.2s;
+      }
+      .button:hover {
+        background-color: #2563eb; /* blue-600 */
+      }
+      .button:active {
+        background-color: #1d4ed8; /* blue-700 */
+      }
+      .button.gray {
+        background-color: #374151; /* gray-700 */
+      }
+      .button.gray:hover {
+        background-color: #4b5563; /* gray-600 */
+      }
+      .button.gray:active {
+        background-color: #1f2937; /* gray-800 */
+      }
+      /* Hide elements by default */
+      .hidden {
+        display: none;
+      }
+      .space-y-6 > * + * {
+        margin-top: 1.5rem;
+      }
+      /* Circle styling */
+      #circle {
+        width: 12rem;
+        height: 12rem;
+        background-color: #3b82f6;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Faster transition to match 1-second inhale/exhale durations */
+        transition: transform 1s linear;
+      }
+      @media (min-width: 768px) {
+        #circle {
+          width: 16rem;
+          height: 16rem;
+        }
+      }
+      /* Instruction animations */
+      @keyframes move-up {
+        /* Move the icon from the bottom of its container to the top. 80px
+           produces a noticeable displacement for the 8rem high container. */
+        from {
+          transform: translateY(80px);
+        }
+        to {
+          transform: translateY(-80px);
+        }
+      }
+      @keyframes move-down {
+        /* Move the icon from the top of its container back to the bottom. */
+        from {
+          transform: translateY(-80px);
+        }
+        to {
+          transform: translateY(80px);
+        }
+      }
+
+      /* Additional utility classes replicating a small subset of Tailwind */
+      .select-none {
+        user-select: none;
+      }
+      .space-y-4 > * + * {
+        margin-top: 1rem;
+      }
+      .space-y-6 > * + * {
+        margin-top: 1.5rem;
+      }
+      .space-x-4 > * + * {
+        margin-left: 1rem;
+      }
+      .text-3xl {
+        font-size: 1.875rem;
+      }
+      .font-semibold {
+        font-weight: 600;
+      }
+
+      /* Box square styling for box breathing exercise */
+      #box-square {
+        width: 12rem;
+        height: 12rem;
+        border: 4px solid #3b82f6;
+        border-radius: 0.5rem;
+        background-color: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 4s linear;
+      }
+      @media (min-width: 768px) {
+        #box-square {
+          width: 16rem;
+          height: 16rem;
+        }
+      }
+    </style>
+  </head>
+  <body
+  >
+    <!-- Start screen -->
+    <div id="start-screen" class="space-y-6">
+      <h1 class="text-3xl font-semibold">Выберите упражнение</h1>
+      <!-- Two options: energy boost and relax -->
+      <div style="display:flex; justify-content:center; gap:1rem; flex-wrap: wrap;">
+        <button id="energy-btn" class="button">Energy&nbsp;Boost</button>
+        <button id="relax-btn" class="button gray">Relax</button>
+      </div>
+    </div>
+
+    <!-- Instruction screen -->
+    <div id="instruction-screen" class="hidden space-y-4">
+      <!-- Container for animated hands.  Each hand group uses flexbox to
+           align the icons at the bottom of a fixed‑height container.  By
+           animating the translateY property via the Web Animation API we
+           can move the icons up and down without overlapping the
+           instruction text.  Two groups are provided for left and right
+           hands. -->
+      <div
+        id="hands-container"
+        style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 6rem; height: 8rem; overflow: visible;"
+      >
+        <!-- Left hand -->
+        <div
+          class="hand-group"
+          style="width: 4rem; height: 8rem; display: flex; justify-content: center; align-items: flex-end; position: relative;"
+        >
+          <span
+            id="open-hand-left"
+            class="select-none hand-icon"
+            style="font-size: 4rem; display: none;"
+            >🖐️</span
+          >
+          <span
+            id="fist-hand-left"
+            class="select-none hand-icon"
+            style="font-size: 4rem; display: none;"
+            >✊</span
+          >
+        </div>
+        <!-- Right hand -->
+        <div
+          class="hand-group"
+          style="width: 4rem; height: 8rem; display: flex; justify-content: center; align-items: flex-end; position: relative;"
+        >
+          <span
+            id="open-hand-right"
+            class="select-none hand-icon"
+            style="font-size: 4rem; display: none;"
+            >🖐️</span
+          >
+          <span
+            id="fist-hand-right"
+            class="select-none hand-icon"
+            style="font-size: 4rem; display: none;"
+            >✊</span
+          >
+        </div>
+      </div>
+      <!-- Instruction text moved down to avoid overlap with animated hands -->
+      <!-- Instruction text: positioned normally; extra space above comes from the hands container's large margin-bottom. -->
+      <p style="font-size: 1.125rem;">
+        Поднимайте руки на вдох, опускайте на выдох
+      </p>
+    </div>
+
+    <!-- Box breathing instruction screen -->
+    <div id="box-instruction-screen" class="hidden space-y-4">
+      <div id="box-demo" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 10rem;">
+        <!-- Demonstration square -->
+        <div id="demo-square" style="width: 6rem; height: 6rem; border: 4px solid #3b82f6; border-radius: 0.5rem;"></div>
+        <!-- Demo prompt below the square -->
+        <p id="demo-prompt" style="margin-top: 1rem; font-size: 1.125rem;"></p>
+      </div>
+      <p style="font-size: 1rem;">Схема 4-4-4-4: вдох, задержка, выдох, задержка</p>
+    </div>
+
+    <!-- Box breathing exercise screen -->
+    <div id="box-exercise-screen" class="hidden space-y-6">
+      <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+        <div id="box-square"></div>
+        <div id="box-prompt" style="position: absolute; font-size: 1.5rem; font-weight: 600; color: #111827;"></div>
+      </div>
+      <!-- Position the box‑breathing timer lower so it never overlaps the square -->
+      <p id="box-timer" style="font-size: 1.125rem; position: relative; top: 4rem;"></p>
+    </div>
+
+    <!-- Exercise screen -->
+    <div id="exercise-screen" class="hidden space-y-6">
+      <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+        <!-- The pulsing circle -->
+        <div id="circle"></div>
+        <!-- Text prompt (inhale/exhale) overlayed on the circle -->
+        <div id="prompt" style="position: absolute; font-size: 1.5rem; font-weight: 600; color: #111827;"></div>
+      </div>
+      <!-- Timer display moved down so it isn't covered by the circle -->
+      <!-- Position the energy timer lower so it never overlaps the circle -->
+      <p id="timer" style="font-size: 1.125rem; position: relative; top: 4rem;"></p>
+    </div>
+
+    <!-- End screen -->
+    <div id="end-screen" class="hidden space-y-6">
+      <h1 class="text-3xl font-semibold">Отлично сработано!</h1>
+      <!-- Centered repeat button; finish button removed as requested -->
+      <div style="display: flex; justify-content: center;">
+        <button id="repeat-btn" class="button">Повторить</button>
+      </div>
+    </div>
+
+    <!-- App logic -->
+    <script>
+      // Wait until the DOM is ready
+      document.addEventListener('DOMContentLoaded', function () {
+        // Elements
+        const startScreen = document.getElementById('start-screen');
+        const instructionScreen = document.getElementById('instruction-screen');
+        const exerciseScreen = document.getElementById('exercise-screen');
+        const endScreen = document.getElementById('end-screen');
+
+        const energyBtn = document.getElementById('energy-btn');
+        const relaxBtn = document.getElementById('relax-btn');
+        const repeatBtn = document.getElementById('repeat-btn');
+
+        // Instruction hands
+        const openHandLeft = document.getElementById('open-hand-left');
+        const fistHandLeft = document.getElementById('fist-hand-left');
+        const openHandRight = document.getElementById('open-hand-right');
+        const fistHandRight = document.getElementById('fist-hand-right');
+        const circle = document.getElementById('circle');
+        const prompt = document.getElementById('prompt');
+        const timerEl = document.getElementById('timer');
+
+        // Box breathing elements
+        const boxInstructionScreen = document.getElementById('box-instruction-screen');
+        const boxExerciseScreen = document.getElementById('box-exercise-screen');
+        const demoSquare = document.getElementById('demo-square');
+        const demoPrompt = document.getElementById('demo-prompt');
+        const boxSquare = document.getElementById('box-square');
+        const boxPrompt = document.getElementById('box-prompt');
+        const boxTimerEl = document.getElementById('box-timer');
+
+        // Breathing configuration
+        // Energy Boost breathing configuration
+        // Each inhale and exhale now lasts 1 second so that 15 cycles fit into ~30 seconds.
+        const inhaleDuration = 1000; // 1 second
+        const exhaleDuration = 1000; // 1 second
+        const totalCycles = 15; // 15 cycles = 30 seconds total
+
+        // Box breathing configuration (4-4-4-4)
+        const boxInhaleDuration = 4000; // 4 seconds inhale
+        const boxHoldDuration = 4000; // 4 seconds hold
+        const boxExhaleDuration = 4000; // 4 seconds exhale
+        const boxTotalCycles = 4; // number of box breathing cycles (4 cycles ~ 64s)
+
+        // Instruction animation configuration
+        // Duration of a single movement (up or down) in milliseconds
+        // Match the energy breathing speed (1s per phase)
+        const instructionHandDuration = 1000;
+        // Number of up+down cycles for the instructional hands
+        const instructionCycles = 2;
+
+        let audioCtx;
+        let breathingInterval;
+        let timerInterval;
+
+        let boxBreathingInterval;
+        let boxTimerInterval;
+
+        // Utility: format milliseconds as mm:ss
+        function formatTime(ms) {
+          const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+          return (
+            String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
+          );
+        }
+
+        // Create a beep using the Web Audio API
+        function beep(frequency, duration) {
+          if (!audioCtx) {
+            // Create once on first use; Safari requires a user interaction to start
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          const oscillator = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          oscillator.connect(gain);
+          gain.connect(audioCtx.destination);
+          oscillator.frequency.value = frequency;
+          oscillator.type = 'sine';
+          oscillator.start();
+          gain.gain.setValueAtTime(1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+          oscillator.stop(audioCtx.currentTime + duration / 1000);
+        }
+
+        /**
+         * Helper to animate a pair of hand icons up and down.  This
+         * implementation uses the Web Animations API instead of pure CSS
+         * keyframes.  Each cycle consists of an upwards phase where the
+         * open hand moves from the bottom of its container to the top, and
+         * a downwards phase where the fist moves back down.  The
+         * translation distance is fixed to 60px, which fits comfortably
+         * inside the 8rem tall hand container.  At the end of each
+         * cycle the function recurses until the desired number of
+         * repetitions is completed.
+         *
+         * @param {HTMLElement} openIcon – the open palm emoji element
+         * @param {HTMLElement} fistIcon – the fist emoji element
+         * @param {number} cyclesRemaining – number of up/down cycles left to run
+         */
+        function animateHand(openIcon, fistIcon, cyclesRemaining) {
+          if (cyclesRemaining <= 0) return;
+          const distance = 60; // pixels to move up/down; ensures the hands stay clear of the instruction text
+          // Show the open hand at the bottom. Reset its transform so the
+          // animation always starts from the same position.
+          openIcon.style.display = 'inline-block';
+          openIcon.style.transform = 'translateY(0px)';
+          // Animate upward: from +distance (below) to -distance (above)
+          openIcon.animate(
+            [
+              { transform: `translateY(${distance}px)` },
+              { transform: `translateY(${-distance}px)` },
+            ],
+            {
+              duration: instructionHandDuration,
+              easing: 'ease-in-out',
+              fill: 'forwards',
+            },
+          );
+          // After moving up, hide the open hand and animate the fist down
+          setTimeout(() => {
+            openIcon.style.display = 'none';
+            fistIcon.style.display = 'inline-block';
+            fistIcon.style.transform = 'translateY(0px)';
+            // Animate downward: from -distance (above) to +distance (below)
+            fistIcon.animate(
+              [
+                { transform: `translateY(${-distance}px)` },
+                { transform: `translateY(${distance}px)` },
+              ],
+              {
+                duration: instructionHandDuration,
+                easing: 'ease-in-out',
+                fill: 'forwards',
+              },
+            );
+            // After the downward animation, hide the fist and start next cycle
+            setTimeout(() => {
+              fistIcon.style.display = 'none';
+              animateHand(openIcon, fistIcon, cyclesRemaining - 1);
+            }, instructionHandDuration);
+          }, instructionHandDuration);
+        }
+
+        // Start the instruction animation
+        function showInstruction() {
+          // Hide start screen and show instruction container
+          startScreen.classList.add('hidden');
+          instructionScreen.classList.remove('hidden');
+          // Start animations on both hands concurrently
+          animateHand(openHandLeft, fistHandLeft, instructionCycles);
+          animateHand(openHandRight, fistHandRight, instructionCycles);
+          // Calculate total instruction time: up and down durations per cycle times cycles
+          const totalInstructionTime = instructionHandDuration * 2 * instructionCycles;
+          // After the animation completes, proceed to exercise screen
+          setTimeout(() => {
+            instructionScreen.classList.add('hidden');
+            // Ensure hands are hidden
+            openHandLeft.style.display = 'none';
+            fistHandLeft.style.display = 'none';
+            openHandRight.style.display = 'none';
+            fistHandRight.style.display = 'none';
+            showExercise();
+          }, totalInstructionTime + 100);
+        }
+
+        // Run breathing cycles
+        function showExercise() {
+          exerciseScreen.classList.remove('hidden');
+          // Reset variables
+          let cycle = 0;
+          const totalDuration = totalCycles * (inhaleDuration + exhaleDuration);
+          const startTime = Date.now();
+          timerEl.textContent = formatTime(totalDuration);
+          // Timer update each second
+          timerInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const remaining = totalDuration - elapsed;
+            timerEl.textContent = formatTime(remaining);
+            if (remaining <= 0) {
+              clearInterval(timerInterval);
+            }
+          }, 1000);
+          // Start breathing loop
+          function doBreathing() {
+            if (cycle >= totalCycles) {
+              // Done
+              clearInterval(breathingInterval);
+              endExercise();
+              return;
+            }
+            // Inhale phase
+            prompt.textContent = 'Вдох…';
+            circle.style.transform = 'scale(1.2)';
+            beep(880, 200); // Higher tone for inhale
+            // After inhale, switch to exhale
+            setTimeout(() => {
+              // Exhale phase
+              prompt.textContent = 'Выдох…';
+              circle.style.transform = 'scale(1)';
+              beep(440, 200); // Lower tone for exhale
+              cycle++;
+            }, inhaleDuration);
+          }
+          // Kick off first cycle immediately
+          doBreathing();
+          breathingInterval = setInterval(doBreathing, inhaleDuration + exhaleDuration);
+        }
+
+        // Show box breathing instruction (demonstration of 4-4-4-4 pattern)
+        function showBoxInstruction() {
+          // Hide start screen and show box instruction screen
+          startScreen.classList.add('hidden');
+          boxInstructionScreen.classList.remove('hidden');
+          // Reset any previous transforms
+          demoSquare.style.transform = 'scale(1)';
+          demoPrompt.textContent = '';
+          // Demonstration phases compressed into 5 seconds (1.25s per phase)
+          const demoPhases = [
+            { text: 'Вдох 4', scale: 1.3 },
+            { text: 'Задержка 4', scale: 1.3 },
+            { text: 'Выдох 4', scale: 0.7 },
+            { text: 'Задержка 4', scale: 0.7 },
+          ];
+          let idx = 0;
+          function nextDemoPhase() {
+            if (idx >= demoPhases.length) return;
+            const ph = demoPhases[idx];
+            demoPrompt.textContent = ph.text;
+            demoSquare.style.transform = `scale(${ph.scale})`;
+            idx++;
+            if (idx < demoPhases.length) {
+              setTimeout(nextDemoPhase, 1250);
+            }
+          }
+          nextDemoPhase();
+          // After 5 seconds (4 phases * 1.25s) proceed to box exercise
+          setTimeout(() => {
+            boxInstructionScreen.classList.add('hidden');
+            // Reset demo elements
+            demoSquare.style.transform = 'scale(1)';
+            demoPrompt.textContent = '';
+            showBoxExercise();
+          }, 5000);
+        }
+
+        // Box breathing exercise: cycles of 4‑second inhale, hold, exhale, hold
+        function showBoxExercise() {
+          boxExerciseScreen.classList.remove('hidden');
+          // Set timer and cycle counters
+          let cycle = 0;
+          const cycleDuration = boxInhaleDuration + boxHoldDuration + boxExhaleDuration + boxHoldDuration;
+          const totalDuration = boxTotalCycles * cycleDuration;
+          const startTime = Date.now();
+          boxTimerEl.textContent = formatTime(totalDuration);
+          // Timer update
+          boxTimerInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const remaining = totalDuration - elapsed;
+            boxTimerEl.textContent = formatTime(remaining);
+            if (remaining <= 0) {
+              clearInterval(boxTimerInterval);
+            }
+          }, 1000);
+          // Define cycle function
+          function doBoxBreathing() {
+            if (cycle >= boxTotalCycles) {
+              clearInterval(boxBreathingInterval);
+              endExercise();
+              return;
+            }
+            // Phase 1: Inhale
+            boxPrompt.textContent = 'Вдох…';
+            boxSquare.style.transform = 'scale(1.3)';
+            beep(880, 200);
+            setTimeout(() => {
+              // Phase 2: Hold (after inhale)
+              boxPrompt.textContent = 'Задержка…';
+              boxSquare.style.transform = 'scale(1.3)';
+              beep(660, 200);
+              setTimeout(() => {
+                // Phase 3: Exhale
+                boxPrompt.textContent = 'Выдох…';
+                boxSquare.style.transform = 'scale(0.7)';
+                beep(440, 200);
+                setTimeout(() => {
+                  // Phase 4: Hold (after exhale)
+                  boxPrompt.textContent = 'Задержка…';
+                  boxSquare.style.transform = 'scale(0.7)';
+                  beep(660, 200);
+                  cycle++;
+                }, boxHoldDuration);
+              }, boxExhaleDuration);
+            }, boxInhaleDuration);
+          }
+          // Start first cycle immediately
+          doBoxBreathing();
+          boxBreathingInterval = setInterval(doBoxBreathing, cycleDuration);
+        }
+
+        // End of exercise: show end screen
+        function endExercise() {
+          exerciseScreen.classList.add('hidden');
+          boxExerciseScreen.classList.add('hidden');
+          endScreen.classList.remove('hidden');
+        }
+
+        // Reset to initial state for repeating
+        function resetApp() {
+          // Hide all except start
+          instructionScreen.classList.add('hidden');
+          exerciseScreen.classList.add('hidden');
+          boxInstructionScreen.classList.add('hidden');
+          boxExerciseScreen.classList.add('hidden');
+          endScreen.classList.add('hidden');
+          startScreen.classList.remove('hidden');
+          // Clear timers
+          if (breathingInterval) clearInterval(breathingInterval);
+          if (timerInterval) clearInterval(timerInterval);
+          if (boxBreathingInterval) clearInterval(boxBreathingInterval);
+          if (boxTimerInterval) clearInterval(boxTimerInterval);
+          prompt.textContent = '';
+          timerEl.textContent = '';
+          circle.style.transform = 'scale(1)';
+          boxPrompt.textContent = '';
+          boxTimerEl.textContent = '';
+          boxSquare.style.transform = 'scale(1)';
+        }
+
+        // Energy button click
+        energyBtn.addEventListener('click', () => {
+          showInstruction();
+        });
+        // Relax button click
+        relaxBtn.addEventListener('click', () => {
+          showBoxInstruction();
+        });
+        // Repeat button
+        repeatBtn.addEventListener('click', () => {
+          resetApp();
+        });
+        // Finish button removed: users can simply close the web app via Telegram or reload the page.
+      });
+    </script>
+  </body>
+</html>
