@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<!--
+  Energizing Arm Fist Flow – Telegram WebApp breathing exercise
+
+  This simple web application provides a guided 1–3‑minute breathing
+  exercise designed to wake you up and boost your energy.  The user
+  flow comprises three main screens: a start screen with a call‑to‑action
+  button, a short instructional animation showing how to move your arms
+  during the exercise, and the exercise screen itself featuring a
+  pulsating circle and audible cues for inhale and exhale.  After
+  completing the exercise the user sees a congratulatory message with
+  options to repeat or finish.  The design is intentionally
+  minimalist with a dark theme that works well inside Telegram's
+  WebView on both mobile and desktop.  All styling uses the Tailwind
+  utility classes loaded via CDN.
+
+  To test this file locally simply open it in a browser.  When used
+  inside Telegram the Telegram WebApp API is loaded automatically via
+  `telegram-web-app.js`.
+-->
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Проснись и зарядись!</title>
+    <!-- Telegram Web App SDK (required when loaded in Telegram) -->
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+    <style>
+      /* Base styles */
+      body {
+        background-color: #111827; /* dark slate */
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 1rem;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 1.5rem;
+        line-height: 1.2;
+      }
+      .button {
+        background-color: #3b82f6; /* blue-500 */
+        color: #ffffff;
+        border: none;
+        border-radius: 9999px;
+        padding: 1rem 2rem;
+        font-size: 1.25rem;
+        cursor: pointer;
+        margin: 0.25rem;
+        transition: background-color 0.2s;
+      }
+      .button:hover {
+        background-color: #2563eb; /* blue-600 */
+      }
+      .button:active {
+        background-color: #1d4ed8; /* blue-700 */
+      }
+      .button.gray {
+        background-color: #374151; /* gray-700 */
+      }
+      .button.gray:hover {
+        background-color: #4b5563; /* gray-600 */
+      }
+      .button.gray:active {
+        background-color: #1f2937; /* gray-800 */
+      }
+      /* Hide elements by default */
+      .hidden {
+        display: none;
+      }
+      .space-y-6 > * + * {
+        margin-top: 1.5rem;
+      }
+      /* Circle styling */
+      #circle {
+        width: 12rem;
+        height: 12rem;
+        background-color: #3b82f6;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 3s linear;
+      }
+      @media (min-width: 768px) {
+        #circle {
+          width: 16rem;
+          height: 16rem;
+        }
+      }
+      /* Instruction animations */
+      @keyframes move-up {
+        /* Move the icon from the bottom of its container to the top. 80px
+           produces a noticeable displacement for the 8rem high container. */
+        from {
+          transform: translateY(80px);
+        }
+        to {
+          transform: translateY(-80px);
+        }
+      }
+      @keyframes move-down {
+        /* Move the icon from the top of its container back to the bottom. */
+        from {
+          transform: translateY(-80px);
+        }
+        to {
+          transform: translateY(80px);
+        }
+      }
+
+      /* Additional utility classes replicating a small subset of Tailwind */
+      .select-none {
+        user-select: none;
+      }
+      .space-y-4 > * + * {
+        margin-top: 1rem;
+      }
+      .space-y-6 > * + * {
+        margin-top: 1.5rem;
+      }
+      .space-x-4 > * + * {
+        margin-left: 1rem;
+      }
+      .text-3xl {
+        font-size: 1.875rem;
+      }
+      .font-semibold {
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body
+  >
+    <!-- Start screen -->
+    <div id="start-screen" class="space-y-6">
+      <h1 class="text-3xl font-semibold">Проснись и зарядись энергией!</h1>
+      <button id="start-btn" class="button">Начать упражнение</button>
+    </div>
+
+    <!-- Instruction screen -->
+    <div id="instruction-screen" class="hidden space-y-4">
+      <div style="position: relative; height: 8rem; display: flex; align-items: center; justify-content: center;">
+        <!-- Open hand icon (emoji). Initially hidden; animated via JS -->
+        <span id="open-hand" class="select-none" style="font-size: 4rem; display: none;">
+          🖐️
+        </span>
+        <!-- Fist icon (emoji). Initially hidden; animated via JS -->
+        <span id="fist-hand" class="select-none" style="font-size: 4rem; display: none;">
+          ✊
+        </span>
+      </div>
+      <p style="font-size: 1.125rem;">
+        Поднимайте руки на вдох, опускайте на выдох
+      </p>
+    </div>
+
+    <!-- Exercise screen -->
+    <div id="exercise-screen" class="hidden space-y-6">
+      <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+        <!-- The pulsing circle -->
+        <div id="circle"></div>
+        <!-- Text prompt (inhale/exhale) overlayed on the circle -->
+        <div id="prompt" style="position: absolute; font-size: 1.5rem; font-weight: 600; color: #111827;"></div>
+      </div>
+      <!-- Timer display -->
+      <p id="timer" style="font-size: 1.125rem;"></p>
+    </div>
+
+    <!-- End screen -->
+    <div id="end-screen" class="hidden space-y-6">
+      <h1 class="text-3xl font-semibold">Отлично сработано!</h1>
+      <div style="display: flex; justify-content: center;">
+        <button id="repeat-btn" class="button">Повторить</button>
+        <button id="finish-btn" class="button gray">Завершить</button>
+      </div>
+    </div>
+
+    <!-- App logic -->
+    <script>
+      // Wait until the DOM is ready
+      document.addEventListener('DOMContentLoaded', function () {
+        // Elements
+        const startScreen = document.getElementById('start-screen');
+        const instructionScreen = document.getElementById('instruction-screen');
+        const exerciseScreen = document.getElementById('exercise-screen');
+        const endScreen = document.getElementById('end-screen');
+
+        const startBtn = document.getElementById('start-btn');
+        const repeatBtn = document.getElementById('repeat-btn');
+        const finishBtn = document.getElementById('finish-btn');
+
+        const openHand = document.getElementById('open-hand');
+        const fistHand = document.getElementById('fist-hand');
+        const circle = document.getElementById('circle');
+        const prompt = document.getElementById('prompt');
+        const timerEl = document.getElementById('timer');
+
+        // Breathing configuration
+        const inhaleDuration = 3000; // 3 seconds
+        const exhaleDuration = 3000; // 3 seconds
+        const totalCycles = 10; // 10 cycles = ~1 minute
+
+        let audioCtx;
+        let breathingInterval;
+        let timerInterval;
+
+        // Utility: format milliseconds as mm:ss
+        function formatTime(ms) {
+          const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+          return (
+            String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
+          );
+        }
+
+        // Create a beep using the Web Audio API
+        function beep(frequency, duration) {
+          if (!audioCtx) {
+            // Create once on first use; Safari requires a user interaction to start
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          const oscillator = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          oscillator.connect(gain);
+          gain.connect(audioCtx.destination);
+          oscillator.frequency.value = frequency;
+          oscillator.type = 'sine';
+          oscillator.start();
+          gain.gain.setValueAtTime(1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+          oscillator.stop(audioCtx.currentTime + duration / 1000);
+        }
+
+        // Start the instruction animation
+        function showInstruction() {
+          startScreen.classList.add('hidden');
+          instructionScreen.classList.remove('hidden');
+          // Animate open hand up
+          openHand.style.display = 'inline-block';
+          openHand.style.animation = 'move-up 2.5s ease-in-out forwards';
+          // After 2.5s switch to fist moving down
+          setTimeout(() => {
+            openHand.style.display = 'none';
+            fistHand.style.display = 'inline-block';
+            fistHand.style.animation = 'move-down 2.5s ease-in-out forwards';
+          }, inhaleDuration / 2); // 2.5s
+          // After full 5 seconds show exercise
+          setTimeout(() => {
+            instructionScreen.classList.add('hidden');
+            fistHand.style.display = 'none';
+            showExercise();
+          }, inhaleDuration * 2 - 100); // 6s - slight adjust
+        }
+
+        // Run breathing cycles
+        function showExercise() {
+          exerciseScreen.classList.remove('hidden');
+          // Reset variables
+          let cycle = 0;
+          const totalDuration = totalCycles * (inhaleDuration + exhaleDuration);
+          const startTime = Date.now();
+          timerEl.textContent = formatTime(totalDuration);
+          // Timer update each second
+          timerInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const remaining = totalDuration - elapsed;
+            timerEl.textContent = formatTime(remaining);
+            if (remaining <= 0) {
+              clearInterval(timerInterval);
+            }
+          }, 1000);
+          // Start breathing loop
+          function doBreathing() {
+            if (cycle >= totalCycles) {
+              // Done
+              clearInterval(breathingInterval);
+              endExercise();
+              return;
+            }
+            // Inhale phase
+            prompt.textContent = 'Вдох…';
+            circle.style.transform = 'scale(1.2)';
+            beep(880, 200); // Higher tone for inhale
+            // After inhale, switch to exhale
+            setTimeout(() => {
+              // Exhale phase
+              prompt.textContent = 'Выдох…';
+              circle.style.transform = 'scale(1)';
+              beep(440, 200); // Lower tone for exhale
+              cycle++;
+            }, inhaleDuration);
+          }
+          // Kick off first cycle immediately
+          doBreathing();
+          breathingInterval = setInterval(doBreathing, inhaleDuration + exhaleDuration);
+        }
+
+        // End of exercise: show end screen
+        function endExercise() {
+          exerciseScreen.classList.add('hidden');
+          endScreen.classList.remove('hidden');
+        }
+
+        // Reset to initial state for repeating
+        function resetApp() {
+          // Hide all except start
+          instructionScreen.classList.add('hidden');
+          exerciseScreen.classList.add('hidden');
+          endScreen.classList.add('hidden');
+          startScreen.classList.remove('hidden');
+          // Clear timers
+          if (breathingInterval) clearInterval(breathingInterval);
+          if (timerInterval) clearInterval(timerInterval);
+          prompt.textContent = '';
+          timerEl.textContent = '';
+          circle.style.transform = 'scale(1)';
+        }
+
+        // Start button click
+        startBtn.addEventListener('click', () => {
+          showInstruction();
+        });
+        // Repeat button
+        repeatBtn.addEventListener('click', () => {
+          resetApp();
+        });
+        // Finish button
+        finishBtn.addEventListener('click', () => {
+          if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.close();
+          } else {
+            // When not in Telegram, just reload the page
+            window.location.reload();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
