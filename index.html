@@ -4,349 +4,486 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alex Baranov</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --bg: #0a0a0a;
-            --surface: #111111;
-            --border: #1a1a1a;
-            --text: #e5e5e5;
-            --text-muted: #888;
-            --accent: #3b82f6;
-            --accent-dim: rgba(59, 130, 246, 0.1);
-            --green: #22c55e;
-            --gold: #f59e0b;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background: #000;
+            color: #f5f5f7;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* Nav */
+        /* ── Nav ── */
         nav {
             position: fixed;
             top: 0;
             width: 100%;
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
+            height: 48px;
+            z-index: 1000;
+            transition: background 0.3s, border-color 0.3s;
+            border-bottom: 1px solid transparent;
         }
-        nav .container {
+        nav.scrolled {
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        nav .nav-inner {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 56px;
+            height: 100%;
         }
         nav .logo {
-            font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: 600;
             letter-spacing: -0.02em;
+            color: #f5f5f7;
         }
-        nav .links { display: flex; gap: 24px; }
-        nav .links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 400;
-            transition: color 0.2s;
-        }
-        nav .links a:hover { color: var(--text); }
-
-        /* Hero */
-        .hero {
-            padding: 140px 0 80px;
-        }
-        .hero .location {
-            color: var(--accent);
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 16px;
+        nav .nav-links {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 28px;
         }
-        .hero .location .dot {
-            width: 6px; height: 6px;
-            background: var(--green);
-            border-radius: 50%;
-            display: inline-block;
+        nav .nav-links a {
+            font-size: 12px;
+            color: #86868b;
+            text-decoration: none;
+            transition: color 0.2s;
+            letter-spacing: 0.01em;
+        }
+        nav .nav-links a:hover { color: #f5f5f7; }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 24px;
         }
         .hero h1 {
-            font-size: 48px;
-            font-weight: 700;
+            font-size: 80px;
+            font-weight: 600;
             letter-spacing: -0.03em;
-            line-height: 1.1;
-            margin-bottom: 16px;
+            line-height: 1.05;
+            color: #f5f5f7;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: heroIn 0.8s ease-out 0.3s forwards;
         }
-        .hero p {
-            color: var(--text-muted);
-            font-size: 18px;
-            max-width: 520px;
-            line-height: 1.7;
+        .hero .subhead {
+            margin-top: 20px;
+            font-size: 28px;
+            font-weight: 400;
+            color: #86868b;
+            max-width: 600px;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: heroIn 0.8s ease-out 0.6s forwards;
         }
 
-        /* Section */
-        section {
-            padding: 60px 0;
+        @keyframes heroIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        section h2 {
-            font-size: 13px;
+
+        /* ── Photo Section ── */
+        .photo-section {
+            background: #000;
+            padding: 150px 0;
+            text-align: center;
+        }
+        .photo-section.light {
+            background: #fbfbfd;
+        }
+        .photo-section .section-label {
+            font-size: 22px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            margin-bottom: 32px;
+            letter-spacing: 0.1em;
+            color: #86868b;
+            margin-bottom: 12px;
+        }
+        .photo-section.light .section-label {
+            color: #86868b;
+        }
+        .photo-section .section-desc {
+            font-size: 21px;
+            font-weight: 400;
+            color: #86868b;
+            max-width: 500px;
+            margin: 0 auto 60px;
+            line-height: 1.47;
+        }
+        .photo-section.light .section-desc {
+            color: #6e6e73;
+        }
+        .photo-section .photo-wrap {
+            width: fit-content;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 0 24px;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        .photo-section .photo-wrap.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .photo-section .photo-wrap img {
+            display: block;
+            max-height: 70vh;
+            max-width: 100%;
+            width: auto;
+            margin: 0 auto;
         }
 
-        /* Skills */
-        .skills-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+        /* ── Text Sections (Projects, About) ── */
+        .text-section {
+            padding: 150px 0;
+            background: #000;
         }
-        .skill-tag {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: var(--text);
-            font-weight: 400;
+        .text-section.light {
+            background: #fbfbfd;
+        }
+        .text-section .inner {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .text-section .section-label {
+            font-size: 22px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #86868b;
+            margin-bottom: 60px;
+            text-align: center;
         }
 
         /* Projects */
-        .project {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 28px;
-            margin-bottom: 16px;
-            transition: border-color 0.2s;
+        .project-item {
+            margin-bottom: 64px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
-        .project:hover { border-color: #333; }
-        .project h3 {
-            font-size: 18px;
+        .project-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .project-item h3 {
+            font-size: 32px;
             font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.02em;
+            color: #f5f5f7;
+            margin-bottom: 12px;
         }
-        .project p {
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.6;
+        .text-section.light .project-item h3 {
+            color: #1d1d1f;
         }
-        .project .tag {
-            display: inline-block;
-            margin-top: 12px;
-            margin-right: 8px;
-            font-size: 12px;
-            color: var(--accent);
-            background: var(--accent-dim);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-weight: 500;
+        .project-item p {
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.47;
+            color: #86868b;
+        }
+        .text-section.light .project-item p {
+            color: #6e6e73;
         }
 
         /* Hackathons */
-        .hackathon {
+        .hack-item {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border);
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
-        .hackathon:last-child { border-bottom: none; }
-        .hackathon .name { font-size: 15px; font-weight: 500; }
-        .hackathon .result {
-            font-size: 14px;
-            color: var(--gold);
+        .hack-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .text-section.light .hack-item {
+            border-bottom-color: rgba(0, 0, 0, 0.08);
+        }
+        .hack-item:last-child { border-bottom: none; }
+        .hack-item .hack-name {
+            font-size: 17px;
             font-weight: 500;
+            color: #f5f5f7;
+        }
+        .text-section.light .hack-item .hack-name {
+            color: #1d1d1f;
+        }
+        .hack-item .hack-result {
+            font-size: 17px;
+            font-weight: 500;
+            color: #e8833a;
             white-space: nowrap;
+            margin-left: 20px;
         }
 
         /* About */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+        .about-text {
+            font-size: 21px;
+            font-weight: 400;
+            line-height: 1.47;
+            color: #86868b;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
-        .about-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
+        .about-text.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .about-card .label {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 8px;
-        }
-        .about-card .value {
-            font-size: 15px;
-            font-weight: 500;
+        .text-section.light .about-text {
+            color: #6e6e73;
         }
 
-        /* Footer */
+        /* ── Footer / Contact ── */
         footer {
-            border-top: 1px solid var(--border);
-            padding: 40px 0;
+            background: #000;
+            padding: 80px 24px;
             text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
-        footer .links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; }
-        footer .links a {
-            color: var(--text-muted);
-            text-decoration: none;
+        footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+        footer .footer-links a {
             font-size: 14px;
+            color: #86868b;
+            text-decoration: none;
             transition: color 0.2s;
         }
-        footer .links a:hover { color: var(--text); }
-        footer .copy { color: #444; font-size: 13px; }
+        footer .footer-links a:hover { color: #f5f5f7; }
+        footer .copy {
+            font-size: 12px;
+            color: #424245;
+        }
 
-        /* Mobile */
-        @media (max-width: 600px) {
-            .hero h1 { font-size: 32px; }
-            .hero p { font-size: 16px; }
-            .about-grid { grid-template-columns: 1fr; }
-            .hackathon { flex-direction: column; gap: 4px; }
-            nav .links { gap: 16px; }
+        /* ── Mobile ── */
+        @media (max-width: 734px) {
+            .hero h1 { font-size: 48px; }
+            .hero .subhead { font-size: 21px; }
+            .photo-section { padding: 100px 0; }
+            .photo-section .photo-wrap { padding: 0 16px; }
+            .photo-section .section-label { font-size: 18px; }
+            .photo-section .section-desc { font-size: 17px; padding: 0 24px; }
+            .text-section { padding: 100px 0; }
+            .project-item h3 { font-size: 24px; }
+            .hack-item { flex-direction: column; gap: 4px; }
+            .hack-item .hack-result { margin-left: 0; }
+            nav .nav-links { gap: 16px; }
+            nav .nav-links a { font-size: 11px; }
         }
     </style>
 </head>
 <body>
 
-<nav>
-    <div class="container">
-        <div class="logo">AB</div>
-        <div class="links">
+<!-- Nav -->
+<nav id="nav">
+    <div class="nav-inner">
+        <div class="logo">Alex Baranov</div>
+        <div class="nav-links">
             <a href="#projects">Projects</a>
-            <a href="#hackathons">Hackathons</a>
             <a href="#about">About</a>
             <a href="https://github.com/AlexBaranovIT" target="_blank">GitHub</a>
+            <a href="https://www.linkedin.com/in/alex-baranka/" target="_blank">LinkedIn</a>
         </div>
     </div>
 </nav>
 
-<div class="container">
+<!-- Hero -->
+<section class="hero">
+    <h1>Alex Baranov</h1>
+    <div class="subhead">Developer. Co-founder. 17 years old, building from Limassol, Cyprus.</div>
+</section>
 
-    <div class="hero">
-        <div class="location"><span class="dot"></span> Limassol, Cyprus</div>
-        <h1>Alex Baranov</h1>
-        <p>17-year-old developer and co-founder building AI-powered automation tools and Telegram bot solutions for businesses.</p>
+<!-- FOCUS -->
+<section class="photo-section">
+    <div class="section-label reveal">FOCUS</div>
+    <div class="section-desc reveal">Listening. Learning. The moments between presenting — absorbing every idea in the room.</div>
+    <div class="photo-wrap">
+        <img src="photos/lead-focus.jpeg" alt="Focused at tech event">
     </div>
+</section>
 
-    <section id="skills">
-        <h2>Skills</h2>
-        <div class="skills-grid">
-            <span class="skill-tag">Python</span>
-            <span class="skill-tag">Django</span>
-            <span class="skill-tag">Async Programming</span>
-            <span class="skill-tag">AI/ML Integration</span>
-            <span class="skill-tag">GPT-4o & Gemini API</span>
-            <span class="skill-tag">Telegram Bots</span>
-            <span class="skill-tag">Linux Administration</span>
-            <span class="skill-tag">Robotics</span>
-            <span class="skill-tag">Cybersecurity</span>
-            <span class="skill-tag">Data Analysis</span>
-        </div>
-    </section>
+<!-- BUILD -->
+<section class="photo-section light">
+    <div class="section-label reveal">BUILD</div>
+    <div class="section-desc reveal">Presenting at HackTech 2025. A wildfire emergency platform that took second place and a &euro;10,000 prize.</div>
+    <div class="photo-wrap">
+        <img src="photos/build-presenting.jpeg" alt="Presenting at hackathon">
+    </div>
+</section>
 
-    <section id="projects">
-        <h2>Projects</h2>
+<!-- WIN -->
+<section class="photo-section">
+    <div class="section-label reveal">WIN</div>
+    <div class="section-desc reveal">The moment it became real. HackTech 2025, second place, &euro;10,000.</div>
+    <div class="photo-wrap">
+        <img src="photos/build-hacktech-win.jpeg" alt="Holding HackTech winner certificate">
+    </div>
+</section>
 
-        <div class="project">
+<!-- COMPETE -->
+<section class="photo-section light">
+    <div class="section-label reveal" style="color: #1d1d1f;">COMPETE</div>
+    <div class="section-desc reveal">11 years on the pitch. Football shaped how I think about teamwork, discipline, and showing up every day.</div>
+    <div class="photo-wrap">
+        <img src="photos/compete-team.jpeg" alt="Football team at sunset">
+    </div>
+</section>
+
+<!-- EXPLORE -->
+<section class="photo-section">
+    <div class="section-label reveal">EXPLORE</div>
+    <div class="section-desc reveal">London, Cyprus, wherever the next thing is happening. Building isn't just code — it's being out in the world.</div>
+    <div class="photo-wrap">
+        <img src="photos/explore-london.jpeg" alt="In front of Big Ben, London">
+    </div>
+</section>
+
+<!-- LIFE -->
+<section class="photo-section light">
+    <div class="section-label reveal" style="color: #1d1d1f;">LIFE</div>
+    <div class="section-desc reveal">Not everything is about screens. Sometimes you just need an open field and blue sky.</div>
+    <div class="photo-wrap">
+        <img src="photos/life-freedom.jpeg" alt="Standing on hay bale in open field">
+    </div>
+</section>
+
+<!-- Projects -->
+<section class="text-section" id="projects">
+    <div class="inner">
+        <div class="section-label">PROJECTS</div>
+
+        <div class="project-item">
             <h3>OpenClaw</h3>
             <p>B2B Telegram monitoring service for a financial company. Scans channels for critical keywords, classifies messages via GPT-4o-mini, and alerts admins in real time. Built with co-founder Arseny.</p>
-            <span class="tag">Python</span>
-            <span class="tag">GPT-4o</span>
-            <span class="tag">Telegram API</span>
-            <span class="tag">B2B</span>
         </div>
 
-        <div class="project">
+        <div class="project-item">
             <h3>Jett</h3>
             <p>Personal AI assistant Telegram bot running on a Linux VM. Handles text, voice, images, and documents with rolling conversation memory, web search, calendar integration, and 14 custom tools.</p>
-            <span class="tag">Python</span>
-            <span class="tag">OpenAI API</span>
-            <span class="tag">SQLite</span>
-            <span class="tag">Async</span>
         </div>
 
-        <div class="project">
-            <h3>Resume Reformatter Bot</h3>
-            <p>Accepts PDF/DOCX resumes via Telegram, parses them using Gemini AI, and outputs a professionally formatted Word document matching company templates.</p>
-            <span class="tag">Python</span>
-            <span class="tag">Gemini API</span>
-            <span class="tag">Document Processing</span>
+        <div class="project-item">
+            <h3>Monty</h3>
+            <p>Accepts PDF and DOCX resumes via Telegram, parses them using Gemini AI, and outputs a professionally formatted Word document matching company templates.</p>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section id="hackathons">
-        <h2>Hackathons & Competitions</h2>
-        <div class="hackathon">
-            <span class="name">HackTech 2025 — Wildfire Emergency Platform</span>
-            <span class="result">2nd Place &middot; &euro;10,000</span>
-        </div>
-        <div class="hackathon">
-            <span class="name">Uber Global Hackathon</span>
-            <span class="result">Participant</span>
-        </div>
-        <div class="hackathon">
-            <span class="name">NASA Space Apps Challenge</span>
-            <span class="result">Participant</span>
-        </div>
-        <div class="hackathon">
-            <span class="name">Harvard Crimson Case Competition</span>
-            <span class="result">Participant</span>
-        </div>
-    </section>
+<!-- Hackathons -->
+<section class="text-section light">
+    <div class="inner">
+        <div class="section-label" style="color: #1d1d1f;">HACKATHONS</div>
 
-    <section id="about">
-        <h2>About</h2>
-        <div class="about-grid">
-            <div class="about-card">
-                <div class="label">Education</div>
-                <div class="value">IMS Private School, Limassol</div>
-            </div>
-            <div class="about-card">
-                <div class="label">Business</div>
-                <div class="value">Co-founder, B2B Automation</div>
-            </div>
-            <div class="about-card">
-                <div class="label">Sports</div>
-                <div class="value">11 years of football</div>
-            </div>
-            <div class="about-card">
-                <div class="label">Interests</div>
-                <div class="value">Tennis, piano, guitar, painting, physics & sci-fi</div>
-            </div>
+        <div class="hack-item">
+            <span class="hack-name">HackTech 2025 — Wildfire Emergency Platform</span>
+            <span class="hack-result">2nd Place &middot; &euro;10,000</span>
         </div>
-    </section>
+        <div class="hack-item">
+            <span class="hack-name">Uber Global Hackathon</span>
+            <span class="hack-result">Finalist</span>
+        </div>
+        <div class="hack-item">
+            <span class="hack-name">NASA Space Apps Challenge</span>
+            <span class="hack-result">Qualifier</span>
+        </div>
+        <div class="hack-item">
+            <span class="hack-name">Harvard Crimson Case Competition</span>
+            <span class="hack-result">Participant</span>
+        </div>
+    </div>
+</section>
 
-</div>
+<!-- About -->
+<section class="text-section" id="about">
+    <div class="inner">
+        <div class="section-label">ABOUT</div>
+        <div class="about-text">
+            I'm 17, based in Limassol, Cyprus. I build AI-powered tools and Telegram bot solutions for businesses. Co-founder of a B2B automation company. When I'm not coding, I'm on the football pitch, playing piano, or reading sci-fi. Currently at IMS Private School.
+        </div>
+    </div>
+</section>
 
+<!-- Contact -->
 <footer>
-    <div class="links">
+    <div class="footer-links">
         <a href="https://github.com/AlexBaranovIT" target="_blank">GitHub</a>
-        <a href="mailto:alex@baranov.com">Email</a>
+        <a href="https://www.linkedin.com/in/alex-baranka/" target="_blank">LinkedIn</a>
     </div>
     <div class="copy">&copy; 2026 Alex Baranov</div>
 </footer>
+
+<script>
+    // Nav scroll effect
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    // Intersection Observer for reveals
+    const observerOptions = { threshold: 0.15 };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    // Observe photo wraps
+    document.querySelectorAll('.photo-wrap').forEach(el => observer.observe(el));
+
+    // Observe text reveals
+    const textObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.reveal').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+        textObserver.observe(el);
+    });
+
+    // Observe project items and hack items
+    document.querySelectorAll('.project-item, .hack-item, .about-text').forEach(el => observer.observe(el));
+</script>
 
 </body>
 </html>
