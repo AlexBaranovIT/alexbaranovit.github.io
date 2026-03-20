@@ -339,16 +339,18 @@
             background: #000;
         }
         .duo-grid {
-            display: flex;
-            gap: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             width: 63vw;
             max-width: 840px;
             margin: 0 auto;
         }
         .duo-grid img {
-            width: 50%;
+            width: 100%;
             display: block;
             object-fit: cover;
+            aspect-ratio: 4/3;
         }
 
         /* ── About ───────────────────────────────────── */
@@ -430,11 +432,10 @@
             .compete-duo { width: 100vw; flex-direction: column; gap: 4px; }
             .compete-duo img { width: 100%; }
             .duo-grid {
-                flex-direction: column;
-                width: 100vw;
-                gap: 4px;
+                grid-template-columns: 1fr;
+                width: 90vw;
+                gap: 8px;
             }
-            .duo-grid img { width: 100%; }
             .nav-links { gap: 16px; }
             .nav-links a { font-size: 11px; }
             .tg-mockup { width: 100%; max-width: 100%; }
@@ -568,7 +569,9 @@
     <div class="label reveal" style="text-align: center;">BEYOND THE SCREEN</div>
     <div style="font-size: 21px; font-weight: 400; color: #86868b; line-height: 1.47; max-width: 520px; margin: 0 auto 80px; text-align: center;">The best ideas don't come from staring at code. They come from getting lost in new cities, standing in open fields, and remembering that the world is bigger than any project.</div>
     <div class="duo-grid reveal-photo">
-        <img src="photos/explore-london.jpeg" alt="London">
+        <img src="photos/life-padel.jpeg" alt="Padel with dog">
+        <img src="photos/explore-tower-bridge.jpeg" alt="Tower Bridge, London">
+        <img src="photos/explore-phonebooth.jpeg" alt="London phone booth">
         <img src="photos/life-freedom.jpeg" alt="Open field">
     </div>
 </section>
