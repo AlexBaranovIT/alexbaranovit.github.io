@@ -7,8 +7,12 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html.scroll-locked {
+            overflow: hidden;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
             background: #000;
             color: #f5f5f7;
             -webkit-font-smoothing: antialiased;
@@ -16,7 +20,15 @@
             overflow-x: hidden;
         }
 
-        /* ── Nav ── */
+        .snap-section {
+            scroll-snap-align: start;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* ── Nav ─────────────────────────────────────── */
         nav {
             position: fixed;
             top: 0;
@@ -32,7 +44,7 @@
             -webkit-backdrop-filter: saturate(180%) blur(20px);
             border-bottom-color: rgba(255, 255, 255, 0.08);
         }
-        nav .nav-inner {
+        .nav-inner {
             max-width: 980px;
             margin: 0 auto;
             padding: 0 24px;
@@ -41,26 +53,22 @@
             align-items: center;
             height: 100%;
         }
-        nav .logo {
-            font-size: 18px;
+        .nav-logo {
+            font-size: 16px;
             font-weight: 600;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.01em;
             color: #f5f5f7;
         }
-        nav .nav-links {
-            display: flex;
-            gap: 28px;
-        }
-        nav .nav-links a {
+        .nav-links { display: flex; gap: 28px; }
+        .nav-links a {
             font-size: 12px;
             color: #86868b;
             text-decoration: none;
             transition: color 0.2s;
-            letter-spacing: 0.01em;
         }
-        nav .nav-links a:hover { color: #f5f5f7; }
+        .nav-links a:hover { color: #f5f5f7; }
 
-        /* ── Hero ── */
+        /* ── Hero ────────────────────────────────────── */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -69,420 +77,560 @@
             align-items: center;
             text-align: center;
             padding: 0 24px;
+            background: #000;
         }
         .hero h1 {
-            font-size: 80px;
+            font-size: 88px;
             font-weight: 600;
             letter-spacing: -0.03em;
             line-height: 1.05;
             color: #f5f5f7;
             opacity: 0;
             transform: translateY(20px);
-            animation: heroIn 0.8s ease-out 0.3s forwards;
+            animation: fadeUp 0.8s ease-out 0.4s forwards;
         }
-        .hero .subhead {
+        .hero .sub {
             margin-top: 20px;
             font-size: 28px;
             font-weight: 400;
             color: #86868b;
-            max-width: 600px;
-            line-height: 1.4;
             opacity: 0;
             transform: translateY(20px);
-            animation: heroIn 0.8s ease-out 0.6s forwards;
+            animation: fadeUp 0.8s ease-out 0.8s forwards;
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes heroIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* ── Shared ──────────────────────────────────── */
+        .section-dark { background: #000; }
+        .section-light { background: #fbfbfd; }
 
-        /* ── Photo Section ── */
-        .photo-section {
-            background: #000;
-            padding: 150px 0;
-            text-align: center;
-        }
-        .photo-section.light {
-            background: #fbfbfd;
-        }
-        .photo-section .section-label {
-            font-size: 22px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #86868b;
-            margin-bottom: 12px;
-        }
-        .photo-section.light .section-label {
-            color: #86868b;
-        }
-        .photo-section .section-desc {
-            font-size: 21px;
-            font-weight: 400;
-            color: #86868b;
-            max-width: 500px;
-            margin: 0 auto 60px;
-            line-height: 1.47;
-        }
-        .photo-section.light .section-desc {
-            color: #6e6e73;
-        }
-        .photo-section .photo-wrap {
-            width: fit-content;
+        .content {
             max-width: 980px;
             margin: 0 auto;
             padding: 0 24px;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 1s ease-out, transform 1s ease-out;
-        }
-        .photo-section .photo-wrap.visible {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .photo-section .photo-wrap img {
-            display: block;
-            max-height: 70vh;
-            max-width: 100%;
-            width: auto;
-            margin: 0 auto;
         }
 
-        /* ── Text Sections (Projects, About) ── */
-        .text-section {
-            padding: 150px 0;
-            background: #000;
-        }
-        .text-section.light {
-            background: #fbfbfd;
-        }
-        .text-section .inner {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-        .text-section .section-label {
-            font-size: 22px;
-            font-weight: 600;
+        .label {
+            font-size: 13px;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             color: #86868b;
-            margin-bottom: 60px;
+            margin-bottom: 16px;
+        }
+        .section-light .label { color: #86868b; }
+
+        /* ── BUILD ───────────────────────────────────── */
+        .build {
+            padding: 80px 0 0;
+            background: #000;
             text-align: center;
         }
+        .build .label { margin-bottom: 20px; }
+        .build h2 {
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: #f5f5f7;
+            max-width: 700px;
+            margin: 0 auto 16px;
+        }
+        .build .build-sub {
+            font-size: 21px;
+            font-weight: 400;
+            color: #86868b;
+            line-height: 1.47;
+            max-width: 540px;
+            margin: 0 auto 80px;
+        }
+        .build-duo {
+            display: flex;
+            gap: 48px;
+            width: 63vw;
+            max-width: 840px;
+            margin: 0 auto 160px;
+        }
+        .build-duo img {
+            width: 50%;
+            display: block;
+            object-fit: cover;
+        }
 
-        /* Projects */
-        .project-item {
-            margin-bottom: 64px;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        /* ── OpenClaw Integrations ────────────────────────────────── */
+        .openclaw {
+            padding: 80px 0;
+            background: #000;
+            text-align: center;
         }
-        .project-item.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .openclaw .label { margin-bottom: 20px; }
+        .openclaw h2 {
+            font-size: 56px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: #f5f5f7;
+            margin-bottom: 16px;
         }
-        .project-item h3 {
-            font-size: 32px;
+        .openclaw .oc-sub {
+            font-size: 21px;
+            font-weight: 400;
+            color: #86868b;
+            line-height: 1.47;
+            max-width: 520px;
+            margin: 0 auto 80px;
+        }
+        /* Telegram mockup */
+        .tg-mockup {
+            width: 420px;
+            max-width: 90vw;
+            margin: 0 auto;
+            background: #0e0e0e;
+            border: 1px solid rgba(255,255,255,0.06);
+            overflow: hidden;
+        }
+        .tg-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .tg-avatar {
+            width: 36px;
+            height: 36px;
+            background: #1a1a1a;
+            border-radius: 50%;
+        }
+        .tg-header-text .tg-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f5f5f7;
+        }
+        .tg-header-text .tg-status {
+            font-size: 11px;
+            color: #86868b;
+        }
+        .tg-messages {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tg-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .tg-msg.incoming {
+            background: #1a1a1a;
+            color: #86868b;
+            align-self: flex-start;
+            border-radius: 0 16px 16px 16px;
+        }
+        .tg-msg.alert {
+            background: rgba(255, 107, 53, 0.12);
+            border: 1px solid rgba(255, 107, 53, 0.25);
+            color: #FF6B35;
+            align-self: flex-start;
+            border-radius: 0 16px 16px 16px;
+            font-weight: 500;
+        }
+        .tg-msg .blur-text {
+            filter: blur(4px);
+            user-select: none;
+            color: #555;
+        }
+        .tg-msg .tg-time {
+            font-size: 11px;
+            color: #555;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* ── COMPETE ─────────────────────────────────── */
+        .compete {
+            padding: 80px 0 0;
+            background: #000;
+            text-align: center;
+        }
+        .compete h2 {
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: #f5f5f7;
+            max-width: 600px;
+            margin: 0 auto 16px;
+        }
+        .compete .compete-sub {
+            font-size: 21px;
+            font-weight: 400;
+            color: #86868b;
+            line-height: 1.47;
+            max-width: 480px;
+            margin: 0 auto 80px;
+        }
+        .compete-duo {
+            display: flex;
+            gap: 40px;
+            width: 63vw;
+            max-width: 840px;
+            margin: 0 auto;
+            padding-bottom: 160px;
+        }
+        .compete-duo img {
+            width: 50%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* ── Other Projects ──────────────────────────── */
+        .projects {
+            padding: 80px 0;
+            background: #000;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .projects .label {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        .project-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 48px 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .project-row:last-child {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .project-text {
+            flex: 1;
+        }
+        .project-text h3 {
+            font-size: 30px;
             font-weight: 600;
             letter-spacing: -0.02em;
             color: #f5f5f7;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
         }
-        .text-section.light .project-item h3 {
-            color: #1d1d1f;
-        }
-        .project-item p {
+        .project-text p {
             font-size: 17px;
             font-weight: 400;
             line-height: 1.47;
             color: #86868b;
+            max-width: 440px;
         }
-        .text-section.light .project-item p {
-            color: #6e6e73;
+        .project-shape {
+            flex-shrink: 0;
+            margin-left: 40px;
+        }
+        .project-shape svg {
+            display: block;
         }
 
-        /* Hackathons */
-        .hack-item {
+        /* ── Duo Photos ──────────────────────────────── */
+        .duo {
+            padding: 80px 0;
+            background: #000;
+        }
+        .duo-grid {
             display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            padding: 24px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            gap: 8px;
+            width: 63vw;
+            max-width: 840px;
+            margin: 0 auto;
         }
-        .hack-item.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .text-section.light .hack-item {
-            border-bottom-color: rgba(0, 0, 0, 0.08);
-        }
-        .hack-item:last-child { border-bottom: none; }
-        .hack-item .hack-name {
-            font-size: 17px;
-            font-weight: 500;
-            color: #f5f5f7;
-        }
-        .text-section.light .hack-item .hack-name {
-            color: #1d1d1f;
-        }
-        .hack-item .hack-result {
-            font-size: 17px;
-            font-weight: 500;
-            color: #e8833a;
-            white-space: nowrap;
-            margin-left: 20px;
+        .duo-grid img {
+            width: 50%;
+            display: block;
+            object-fit: cover;
         }
 
-        /* About */
-        .about-text {
+        /* ── About ───────────────────────────────────── */
+        .about {
+            padding: 80px 0;
+            background: #fbfbfd;
+            text-align: center;
+        }
+        .about .label { color: #86868b; margin-bottom: 40px; }
+        .about p {
             font-size: 21px;
             font-weight: 400;
             line-height: 1.47;
-            color: #86868b;
+            color: #6e6e73;
             max-width: 600px;
             margin: 0 auto;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-        .about-text.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .text-section.light .about-text {
-            color: #6e6e73;
         }
 
-        /* ── Footer / Contact ── */
+        /* ── Footer ──────────────────────────────────── */
         footer {
-            background: #000;
             padding: 80px 24px;
+            background: #000;
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
-        footer .footer-links {
+        .footer-links {
             display: flex;
             justify-content: center;
             gap: 32px;
             margin-bottom: 24px;
         }
-        footer .footer-links a {
+        .footer-links a {
             font-size: 14px;
             color: #86868b;
             text-decoration: none;
             transition: color 0.2s;
         }
-        footer .footer-links a:hover { color: #f5f5f7; }
-        footer .copy {
+        .footer-links a:hover { color: #f5f5f7; }
+        .copy {
             font-size: 12px;
             color: #424245;
         }
 
-        /* ── Mobile ── */
+        /* ── Scroll reveal ───────────────────────────── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-photo {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        .reveal-photo.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* ── Mobile ──────────────────────────────────── */
         @media (max-width: 734px) {
-            .hero h1 { font-size: 48px; }
-            .hero .subhead { font-size: 21px; }
-            .photo-section { padding: 100px 0; }
-            .photo-section .photo-wrap { padding: 0 16px; }
-            .photo-section .section-label { font-size: 18px; }
-            .photo-section .section-desc { font-size: 17px; padding: 0 24px; }
-            .text-section { padding: 100px 0; }
-            .project-item h3 { font-size: 24px; }
-            .hack-item { flex-direction: column; gap: 4px; }
-            .hack-item .hack-result { margin-left: 0; }
-            nav .nav-links { gap: 16px; }
-            nav .nav-links a { font-size: 11px; }
+            .hero h1 { font-size: 52px; }
+            .hero .sub { font-size: 21px; }
+            .build h2, .compete h2 { font-size: 32px; }
+            .openclaw h2 { font-size: 36px; }
+            .build .photo-primary { width: 100vw; }
+            .build .photo-secondary { width: 85vw; }
+            .compete-duo { width: 100vw; flex-direction: column; gap: 4px; }
+            .compete-duo img { width: 100%; }
+            .project-row { flex-direction: row; }
+            .project-text h3 { font-size: 24px; }
+            .project-shape { display: none; }
+            .build-duo { width: 90vw; flex-direction: column; }
+            .build-duo img { width: 100%; }
+            .compete-duo { width: 100vw; flex-direction: column; gap: 4px; }
+            .compete-duo img { width: 100%; }
+            .duo-grid {
+                flex-direction: column;
+                width: 100vw;
+                gap: 4px;
+            }
+            .duo-grid img { width: 100%; }
+            .nav-links { gap: 16px; }
+            .nav-links a { font-size: 11px; }
+            .tg-mockup { width: 100%; max-width: 100%; }
         }
     </style>
 </head>
 <body>
 
-<!-- Nav -->
+<!-- ── Nav ── -->
 <nav id="nav">
     <div class="nav-inner">
-        <div class="logo">Alex Baranov</div>
+        <div class="nav-logo">Alex Baranov</div>
         <div class="nav-links">
             <a href="#projects">Projects</a>
             <a href="#about">About</a>
             <a href="https://github.com/AlexBaranovIT" target="_blank">GitHub</a>
             <a href="https://www.linkedin.com/in/alex-baranka/" target="_blank">LinkedIn</a>
+            <a href="https://youtube.com" target="_blank">YouTube</a>
         </div>
     </div>
 </nav>
 
-<!-- Hero -->
-<section class="hero">
+<!-- ── Hero ── -->
+<section class="hero snap-section">
     <h1>Alex Baranov</h1>
-    <div class="subhead">Developer. Co-founder. 17 years old, building from Limassol, Cyprus.</div>
+    <div class="sub">I build things that work.</div>
 </section>
 
-<!-- FOCUS -->
-<section class="photo-section">
-    <div class="section-label reveal">FOCUS</div>
-    <div class="section-desc reveal">Listening. Learning. The moments between presenting — absorbing every idea in the room.</div>
-    <div class="photo-wrap">
-        <img src="photos/lead-focus.jpeg" alt="Focused at tech event">
+<!-- ── BUILD ── -->
+<section class="build snap-section">
+    <div class="label reveal">BUILD</div>
+    <h2 class="reveal">HackTech 2025. Second place. &euro;10,000.</h2>
+    <div class="build-sub reveal">A wildfire emergency coordination platform, built in 48 hours, deployed for Cyprus.</div>
+    <div class="build-duo reveal-photo">
+        <img src="photos/build-presenting.jpeg" alt="Presenting at HackTech 2025">
+        <img src="photos/build-hacktech-win.jpeg" alt="HackTech 2025 winner certificate">
     </div>
 </section>
 
-<!-- BUILD -->
-<section class="photo-section light">
-    <div class="section-label reveal">BUILD</div>
-    <div class="section-desc reveal">Presenting at HackTech 2025. A wildfire emergency platform that took second place and a &euro;10,000 prize.</div>
-    <div class="photo-wrap">
-        <img src="photos/build-presenting.jpeg" alt="Presenting at hackathon">
+<!-- ── OpenClaw Integrations ── -->
+<section class="openclaw snap-section" id="projects">
+    <div class="label reveal">FEATURED PROJECT</div>
+    <h2 class="reveal">OpenClaw Integrations</h2>
+    <div class="oc-sub reveal">Custom B2B Telegram monitoring integrations that catch problems before clients do.</div>
+    <div class="tg-mockup reveal-photo">
+        <div class="tg-header">
+            <div class="tg-avatar"></div>
+            <div class="tg-header-text">
+                <div class="tg-name">OpenClaw Integrations Alerts</div>
+                <div class="tg-status">bot</div>
+            </div>
+        </div>
+        <div class="tg-messages">
+            <div class="tg-msg incoming">
+                <span class="blur-text">Transaction #4821 processed via</span>
+                <div class="tg-time">14:22</div>
+            </div>
+            <div class="tg-msg incoming">
+                <span class="blur-text">Client update: account status changed to</span>
+                <div class="tg-time">14:23</div>
+            </div>
+            <div class="tg-msg alert">
+                ALERT: Critical keyword detected in monitored channel. Case classified and logged. Admin notified.
+                <div class="tg-time" style="color: rgba(255,107,53,0.5);">14:24</div>
+            </div>
+            <div class="tg-msg incoming">
+                <span class="blur-text">Routine check completed, no issues</span>
+                <div class="tg-time">14:31</div>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- WIN -->
-<section class="photo-section">
-    <div class="section-label reveal">WIN</div>
-    <div class="section-desc reveal">The moment it became real. HackTech 2025, second place, &euro;10,000.</div>
-    <div class="photo-wrap">
-        <img src="photos/build-hacktech-win.jpeg" alt="Holding HackTech winner certificate">
-    </div>
-</section>
-
-<!-- COMPETE -->
-<section class="photo-section light">
-    <div class="section-label reveal" style="color: #1d1d1f;">COMPETE</div>
-    <div class="section-desc reveal">11 years on the pitch. Football shaped how I think about teamwork, discipline, and showing up every day.</div>
-    <div class="photo-wrap">
+<!-- ── COMPETE ── -->
+<section class="compete snap-section">
+    <div class="label reveal">COMPETE</div>
+    <h2 class="reveal">11 years on the pitch.</h2>
+    <div class="compete-sub reveal">Football taught me how to think about teamwork, discipline, and showing up every single day.</div>
+    <div class="compete-duo reveal-photo">
         <img src="photos/compete-team.jpeg" alt="Football team at sunset">
+        <img src="photos/compete-solo.jpeg" alt="On the pitch">
     </div>
 </section>
 
-<!-- EXPLORE -->
-<section class="photo-section">
-    <div class="section-label reveal">EXPLORE</div>
-    <div class="section-desc reveal">London, Cyprus, wherever the next thing is happening. Building isn't just code — it's being out in the world.</div>
-    <div class="photo-wrap">
-        <img src="photos/explore-london.jpeg" alt="In front of Big Ben, London">
-    </div>
-</section>
-
-<!-- LIFE -->
-<section class="photo-section light">
-    <div class="section-label reveal" style="color: #1d1d1f;">LIFE</div>
-    <div class="section-desc reveal">Not everything is about screens. Sometimes you just need an open field and blue sky.</div>
-    <div class="photo-wrap">
-        <img src="photos/life-freedom.jpeg" alt="Standing on hay bale in open field">
-    </div>
-</section>
-
-<!-- Projects -->
-<section class="text-section" id="projects">
-    <div class="inner">
-        <div class="section-label">PROJECTS</div>
-
-        <div class="project-item">
-            <h3>OpenClaw</h3>
-            <p>B2B Telegram monitoring service for a financial company. Scans channels for critical keywords, classifies messages via GPT-4o-mini, and alerts admins in real time. Built with co-founder Arseny.</p>
+<!-- ── Other Projects ── -->
+<section class="projects snap-section">
+    <div class="content">
+        <div class="label reveal">ALSO BUILT</div>
+        <div class="project-row reveal">
+            <div class="project-text">
+                <h3>Jett</h3>
+                <p>A personal AI assistant that handles everything through Telegram — text, voice, images, documents, calendar, web search.</p>
+            </div>
+            <div class="project-shape">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <circle cx="40" cy="40" r="28" stroke="#FF6B35" stroke-width="1.5" opacity="0.4"/>
+                    <circle cx="40" cy="40" r="16" stroke="#FF6B35" stroke-width="1" opacity="0.2"/>
+                    <circle cx="40" cy="40" r="4" fill="#FF6B35" opacity="0.6"/>
+                </svg>
+            </div>
         </div>
-
-        <div class="project-item">
-            <h3>Jett</h3>
-            <p>Personal AI assistant Telegram bot running on a Linux VM. Handles text, voice, images, and documents with rolling conversation memory, web search, calendar integration, and 14 custom tools.</p>
+        <div class="project-row reveal">
+            <div class="project-text">
+                <h3>Monty</h3>
+                <p>Send a resume in any format, get back a perfectly formatted Word document in seconds.</p>
+            </div>
+            <div class="project-shape">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <rect x="16" y="16" width="48" height="48" rx="8" stroke="#FF6B35" stroke-width="1.5" opacity="0.4"/>
+                    <rect x="28" y="28" width="24" height="24" rx="4" stroke="#FF6B35" stroke-width="1" opacity="0.2"/>
+                </svg>
+            </div>
         </div>
-
-        <div class="project-item">
-            <h3>Monty</h3>
-            <p>Accepts PDF and DOCX resumes via Telegram, parses them using Gemini AI, and outputs a professionally formatted Word document matching company templates.</p>
-        </div>
-    </div>
-</section>
-
-<!-- Hackathons -->
-<section class="text-section light">
-    <div class="inner">
-        <div class="section-label" style="color: #1d1d1f;">HACKATHONS</div>
-
-        <div class="hack-item">
-            <span class="hack-name">HackTech 2025 — Wildfire Emergency Platform</span>
-            <span class="hack-result">2nd Place &middot; &euro;10,000</span>
-        </div>
-        <div class="hack-item">
-            <span class="hack-name">Uber Global Hackathon</span>
-            <span class="hack-result">Finalist</span>
-        </div>
-        <div class="hack-item">
-            <span class="hack-name">NASA Space Apps Challenge</span>
-            <span class="hack-result">Qualifier</span>
-        </div>
-        <div class="hack-item">
-            <span class="hack-name">Harvard Crimson Case Competition</span>
-            <span class="hack-result">Participant</span>
+        <div class="project-row reveal">
+            <div class="project-text">
+                <h3>Roxy</h3>
+                <p>An agent that helps people sign up and book a tennis court time slot seamlessly in seconds, made for the local community.</p>
+            </div>
+            <div class="project-shape">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <polygon points="40,12 68,60 12,60" stroke="#FF6B35" stroke-width="1.5" fill="none" opacity="0.4"/>
+                    <polygon points="40,28 54,52 26,52" stroke="#FF6B35" stroke-width="1" fill="none" opacity="0.2"/>
+                </svg>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- About -->
-<section class="text-section" id="about">
-    <div class="inner">
-        <div class="section-label">ABOUT</div>
-        <div class="about-text">
-            I'm 17, based in Limassol, Cyprus. I build AI-powered tools and Telegram bot solutions for businesses. Co-founder of a B2B automation company. When I'm not coding, I'm on the football pitch, playing piano, or reading sci-fi. Currently at IMS Private School.
-        </div>
+<!-- ── Duo Photos ── -->
+<section class="duo snap-section">
+    <div class="label reveal" style="text-align: center;">BEYOND THE SCREEN</div>
+    <div style="font-size: 21px; font-weight: 400; color: #86868b; line-height: 1.47; max-width: 520px; margin: 0 auto 80px; text-align: center;">The best ideas don't come from staring at code. They come from getting lost in new cities, standing in open fields, and remembering that the world is bigger than any project.</div>
+    <div class="duo-grid reveal-photo">
+        <img src="photos/explore-london.jpeg" alt="London">
+        <img src="photos/life-freedom.jpeg" alt="Open field">
     </div>
 </section>
 
-<!-- Contact -->
+<!-- ── About ── -->
+<section class="about snap-section" id="about">
+    <div class="label reveal">ABOUT</div>
+    <p class="reveal">I'm Alex Baranov, 17, based in Limassol, Cyprus. I co-founded a B2B automation company building custom Telegram bot solutions for businesses. Outside of Uber Global, NASA Space Apps, and Harvard — I've spent 11 years playing football, and I unwind with piano, guitar, and way too much sci-fi.</p>
+</section>
+
+<!-- ── Footer ── -->
 <footer>
     <div class="footer-links">
         <a href="https://github.com/AlexBaranovIT" target="_blank">GitHub</a>
         <a href="https://www.linkedin.com/in/alex-baranka/" target="_blank">LinkedIn</a>
+        <a href="https://youtube.com" target="_blank">YouTube</a>
+        <a href="mailto:alex@baranov.com">Email</a>
     </div>
     <div class="copy">&copy; 2026 Alex Baranov</div>
 </footer>
 
 <script>
-    // Nav scroll effect
+    // Nav
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
         nav.classList.toggle('scrolled', window.scrollY > 10);
     });
 
-    // Intersection Observer for reveals
-    const observerOptions = { threshold: 0.15 };
+    // Reveal observer
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) e.target.classList.add('visible');
+        });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .reveal-photo').forEach(el => io.observe(el));
 
-    const observer = new IntersectionObserver((entries) => {
+    // Scroll lock — blocks scrolling for 1.5s when a new section enters view
+    const sections = document.querySelectorAll('.snap-section');
+    const visited = new Set();
+    let locked = false;
+
+    const lockObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
+            if (entry.isIntersecting && !visited.has(entry.target) && !locked) {
+                visited.add(entry.target);
+                locked = true;
+
+                const scrollY = window.scrollY;
+                const top = entry.target.getBoundingClientRect().top + scrollY;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+
+                document.documentElement.classList.add('scroll-locked');
+
+                setTimeout(() => {
+                    document.documentElement.classList.remove('scroll-locked');
+                    locked = false;
+                }, 1500);
             }
         });
-    }, observerOptions);
+    }, { threshold: 0.3 });
 
-    // Observe photo wraps
-    document.querySelectorAll('.photo-wrap').forEach(el => observer.observe(el));
-
-    // Observe text reveals
-    const textObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, { threshold: 0.2 });
-
-    document.querySelectorAll('.reveal').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
-        textObserver.observe(el);
-    });
-
-    // Observe project items and hack items
-    document.querySelectorAll('.project-item, .hack-item, .about-text').forEach(el => observer.observe(el));
+    sections.forEach(s => lockObserver.observe(s));
 </script>
 
 </body>
