@@ -28,6 +28,46 @@
             justify-content: center;
         }
 
+        /* ── Loading Screen ─────────────────────────────── */
+        .loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.6s ease-out;
+        }
+        .loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader-name {
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            color: #f5f5f7;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: loaderIn 0.8s ease-out 0.2s forwards;
+        }
+        .loader-line {
+            width: 60px;
+            height: 2px;
+            background: #FF6B35;
+            margin-top: 20px;
+            transform: scaleX(0);
+            animation: loaderLine 0.6s ease-out 0.6s forwards;
+        }
+        @keyframes loaderIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes loaderLine {
+            to { transform: scaleX(1); }
+        }
+
         /* ── Nav ─────────────────────────────────────── */
         nav {
             position: fixed;
@@ -67,6 +107,58 @@
             transition: color 0.2s;
         }
         .nav-links a:hover { color: #f5f5f7; }
+
+        /* ── Section Dots ───────────────────────────────── */
+        .section-dots {
+            position: fixed;
+            right: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .section-dots.visible { opacity: 1; }
+        .section-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            padding: 0;
+            position: relative;
+        }
+        .section-dot:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.3);
+        }
+        .section-dot.active {
+            background: #f5f5f7;
+            transform: scale(1.2);
+        }
+        .section-dot .dot-tooltip {
+            position: absolute;
+            right: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: #f5f5f7;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .section-dot:hover .dot-tooltip { opacity: 1; }
 
         /* ── Hero ────────────────────────────────────── */
         .hero {
@@ -121,6 +213,11 @@
             margin-bottom: 16px;
         }
         .section-light .label { color: #86868b; }
+
+        /* ── Counter Animation ──────────────────────────── */
+        .counter {
+            display: inline-block;
+        }
 
         /* ── BUILD ───────────────────────────────────── */
         .build {
@@ -351,12 +448,145 @@
             display: block;
             object-fit: cover;
             aspect-ratio: 3/4;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .duo-grid img:hover { transform: scale(1.02); }
+
+        /* ── Lightbox ───────────────────────────────── */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            cursor: zoom-out;
+        }
+        .lightbox.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .lightbox.open img {
+            transform: scale(1);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 24px;
+            right: 28px;
+            width: 36px;
+            height: 36px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox-close svg {
+            width: 20px;
+            height: 20px;
+            stroke: #86868b;
+            transition: stroke 0.2s;
+        }
+        .lightbox-close:hover svg { stroke: #f5f5f7; }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 16px;
+        }
+        .lightbox-nav svg {
+            width: 28px;
+            height: 28px;
+            stroke: #86868b;
+            transition: stroke 0.2s;
+        }
+        .lightbox-nav:hover svg { stroke: #f5f5f7; }
+        .lightbox-prev { left: 16px; }
+        .lightbox-next { right: 16px; }
+
+        /* ── Blog / Thoughts ─────────────────────────── */
+        .thoughts {
+            padding: 80px 0;
+            background: #000;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .thoughts .label {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .thoughts-grid {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        .thought-card {
+            background: #0e0e0e;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 32px 28px;
+            transition: border-color 0.3s, transform 0.3s;
+            cursor: default;
+        }
+        .thought-card:hover {
+            border-color: rgba(255, 107, 53, 0.3);
+            transform: translateY(-4px);
+        }
+        .thought-date {
+            font-size: 12px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 14px;
+        }
+        .thought-card h3 {
+            font-size: 21px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #f5f5f7;
+            margin-bottom: 10px;
+            line-height: 1.25;
+        }
+        .thought-card p {
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.55;
+            color: #86868b;
+        }
+        .thought-tag {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #FF6B35;
+            opacity: 0.7;
         }
 
         /* ── About ───────────────────────────────────── */
         .about {
             padding: 80px 0;
-            background: #fbfbfd;
+            background: #000;
             text-align: center;
         }
         .about .label { color: #86868b; margin-bottom: 40px; }
@@ -364,7 +594,7 @@
             font-size: 21px;
             font-weight: 400;
             line-height: 1.47;
-            color: #6e6e73;
+            color: #f5f5f7;
             max-width: 600px;
             margin: 0 auto;
         }
@@ -414,6 +644,15 @@
             transform: scale(1);
         }
 
+        /* clickable photos */
+        .build-duo img,
+        .compete-duo img {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .build-duo img:hover,
+        .compete-duo img:hover { transform: scale(1.02); }
+
         /* ── Mobile ──────────────────────────────────── */
         @media (max-width: 734px) {
             .hero h1 { font-size: 52px; }
@@ -439,10 +678,42 @@
             .nav-links { gap: 16px; }
             .nav-links a { font-size: 11px; }
             .tg-mockup { width: 100%; max-width: 100%; }
+            .section-dots { right: 12px; gap: 10px; }
+            .section-dot { width: 8px; height: 8px; }
+            .dot-tooltip { display: none; }
+            .thoughts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .loader-name { font-size: 32px; }
+            .lightbox-nav { display: none; }
         }
     </style>
 </head>
 <body>
+
+<!-- ── Loading Screen ── -->
+<div class="loader" id="loader">
+    <div class="loader-name">Alex Baranov</div>
+    <div class="loader-line"></div>
+</div>
+
+<!-- ── Section Dots ── -->
+<div class="section-dots" id="sectionDots"></div>
+
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <button class="lightbox-nav lightbox-prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <img id="lightboxImg" src="" alt="">
+    <button class="lightbox-nav lightbox-next" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
 
 <!-- ── Nav ── -->
 <nav id="nav">
@@ -450,6 +721,7 @@
         <a href="#" class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" style="text-decoration:none;color:#f5f5f7;">Alex Baranov</a>
         <div class="nav-links">
             <a href="#projects">Projects</a>
+            <a href="#thoughts">Thoughts</a>
             <a href="#about">About</a>
             <a href="https://github.com/AlexBaranovIT" target="_blank">GitHub</a>
             <a href="https://www.linkedin.com/in/alex-baranka/" target="_blank">LinkedIn</a>
@@ -459,25 +731,25 @@
 </nav>
 
 <!-- ── Hero ── -->
-<section class="hero snap-section">
+<section class="hero snap-section" data-dot-label="Home">
     <h1>Alex Baranov</h1>
     <div class="sub">I build things that work.</div>
     <div class="sub" style="margin-top: 40px; font-size: 17px; font-style: italic; opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s ease-out 1.2s forwards;">"How big would you dream, if you knew you couldn't fail"</div>
 </section>
 
 <!-- ── BUILD ── -->
-<section class="build snap-section">
+<section class="build snap-section" data-dot-label="Build">
     <div class="label reveal">BUILD</div>
-    <h2 class="reveal">HackTech 2025. Second place. &euro;10,000.</h2>
-    <div class="build-sub reveal">A wildfire emergency coordination platform, built in 48 hours, deployed for Cyprus.</div>
+    <h2 class="reveal">HackTech 2025. <span class="counter" data-target="2" data-suffix="nd">0nd</span> place. &euro;<span class="counter" data-target="10000" data-prefix="" data-separator=",">0</span>.</h2>
+    <div class="build-sub reveal">A wildfire emergency coordination platform, built in <span class="counter" data-target="48">0</span> hours, deployed for Cyprus.</div>
     <div class="build-duo reveal-photo">
-        <img src="photos/build-presenting.jpeg" alt="Presenting at HackTech 2025">
-        <img src="photos/build-hacktech-win.jpeg" alt="HackTech 2025 winner certificate">
+        <img src="photos/build-presenting.jpeg" alt="Presenting at HackTech 2025" data-lightbox>
+        <img src="photos/build-hacktech-win.jpeg" alt="HackTech 2025 winner certificate" data-lightbox>
     </div>
 </section>
 
 <!-- ── OpenClaw Integrations ── -->
-<section class="openclaw snap-section" id="projects">
+<section class="openclaw snap-section" id="projects" data-dot-label="OpenClaw">
     <div class="label reveal">FEATURED PROJECT</div>
     <h2 class="reveal">OpenClaw Integrations</h2>
     <div class="oc-sub reveal">Custom B2B Telegram monitoring integrations that catch problems before clients do.</div>
@@ -511,18 +783,18 @@
 </section>
 
 <!-- ── COMPETE ── -->
-<section class="compete snap-section">
+<section class="compete snap-section" data-dot-label="Compete">
     <div class="label reveal">COMPETE</div>
-    <h2 class="reveal">11 years on the pitch.</h2>
+    <h2 class="reveal"><span class="counter" data-target="11">0</span> years on the pitch.</h2>
     <div class="compete-sub reveal">Football taught me how to think about teamwork, discipline, and showing up every single day.</div>
     <div class="compete-duo reveal-photo">
-        <img src="photos/compete-team.jpeg" alt="Football team at sunset">
-        <img src="photos/compete-solo.jpeg" alt="On the pitch">
+        <img src="photos/compete-team.jpeg" alt="Football team at sunset" data-lightbox>
+        <img src="photos/compete-solo.jpeg" alt="On the pitch" data-lightbox>
     </div>
 </section>
 
 <!-- ── Other Projects ── -->
-<section class="projects snap-section">
+<section class="projects snap-section" data-dot-label="Projects">
     <div class="content">
         <div class="label reveal">ALSO BUILT</div>
         <div class="project-row reveal">
@@ -566,26 +838,51 @@
 </section>
 
 <!-- ── Duo Photos ── -->
-<section class="duo snap-section">
+<section class="duo snap-section" data-dot-label="Life">
     <div class="label reveal" style="text-align: center;">BEYOND THE SCREEN</div>
     <div style="font-size: 21px; font-weight: 400; color: #86868b; line-height: 1.47; max-width: 520px; margin: 0 auto 80px; text-align: center;">The best ideas don't come from staring at code. They come from getting lost in new cities, standing in open fields, and remembering that the world is bigger than any project.</div>
     <div class="duo-grid reveal-photo">
-        <img src="photos/life-padel.jpeg" alt="Padel with dog">
-        <img src="photos/life-speaking.jpeg" alt="Speaking at event">
-        <img src="photos/life-marathon.jpeg" alt="Limassol Marathon">
-        <img src="photos/life-freedom.jpeg" alt="Open field">
+        <img src="photos/life-padel.jpeg" alt="Padel with dog" data-lightbox>
+        <img src="photos/life-speaking.jpeg" alt="Speaking at event" data-lightbox>
+        <img src="photos/life-marathon.jpeg" alt="Limassol Marathon" data-lightbox>
+        <img src="photos/life-freedom.jpeg" alt="Open field" data-lightbox>
+    </div>
+</section>
+
+<!-- ── Thoughts ── -->
+<section class="thoughts snap-section" id="thoughts" data-dot-label="Thoughts">
+    <div class="label reveal">THOUGHTS</div>
+    <div class="thoughts-grid">
+        <div class="thought-card reveal">
+            <div class="thought-date">March 2025</div>
+            <h3>The Struggle You Pick</h3>
+            <p>We do not really choose between easy and hard; we choose between different kinds of struggle.</p>
+            <span class="thought-tag">Perspective</span>
+        </div>
+        <div class="thought-card reveal">
+            <div class="thought-date">February 2025</div>
+            <h3>What You Return To</h3>
+            <p>Time reveals what motivation hides: what you return to again and again is who you are.</p>
+            <span class="thought-tag">Identity</span>
+        </div>
+        <div class="thought-card reveal">
+            <div class="thought-date">January 2025</div>
+            <h3>The Side Quest Philosophy</h3>
+            <p>Football, marathons, padel, speaking events — none of these are "productive" in the traditional sense. But every big idea I've had came from stepping away from the screen.</p>
+            <span class="thought-tag">Life</span>
+        </div>
     </div>
 </section>
 
 <!-- ── About ── -->
-<section class="about snap-section" id="about">
+<section class="about snap-section" id="about" data-dot-label="About">
     <div class="label reveal">ABOUT</div>
     <p class="reveal">I'm Alex Baranov, 17, based in Limassol, Cyprus. I founded a B2B automation company building Agentic bot solutions for businesses, and I run a YouTube channel where I teach Python and AI. Outside of building, I've spent 11 years on the football pitch, I play tennis and padel whenever I can, and I love sci-fi and comedies and of course non-fiction books. I'm down for pretty much anything.</p>
     <p class="reveal" style="margin-top: 24px; font-style: italic; color: #86868b;">I genuinely believe life's best moments come from the side quests you didn't plan for.</p>
 </section>
 
 <!-- ── Footer ── -->
-<footer>
+<footer data-dot-label="Contact">
     <div class="footer-links">
         <a href="https://github.com/AlexBaranovIT" target="_blank">GitHub</a>
         <a href="https://www.linkedin.com/in/alex-baranka/" target="_blank">LinkedIn</a>
@@ -596,13 +893,22 @@
 </footer>
 
 <script>
-    // Nav
+    // ── Loading screen ──
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            loader.classList.add('fade-out');
+            setTimeout(() => loader.remove(), 600);
+        }, 1400);
+    });
+
+    // ── Nav ──
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
         nav.classList.toggle('scrolled', window.scrollY > 10);
     });
 
-    // Reveal observer
+    // ── Reveal observer ──
     const io = new IntersectionObserver((entries) => {
         entries.forEach(e => {
             if (e.isIntersecting) e.target.classList.add('visible');
@@ -610,7 +916,117 @@
     }, { threshold: 0.15 });
     document.querySelectorAll('.reveal, .reveal-photo').forEach(el => io.observe(el));
 
-    // Scroll lock — blocks scrolling for 1.5s when a new section enters view
+    // ── Section dots ──
+    const dotsContainer = document.getElementById('sectionDots');
+    const allSections = document.querySelectorAll('[data-dot-label]');
+    allSections.forEach((sec, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'section-dot';
+        dot.innerHTML = `<span class="dot-tooltip">${sec.dataset.dotLabel}</span>`;
+        dot.addEventListener('click', () => {
+            sec.scrollIntoView({ behavior: 'smooth' });
+        });
+        dotsContainer.appendChild(dot);
+    });
+    const dots = dotsContainer.querySelectorAll('.section-dot');
+
+    const dotObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const idx = Array.from(allSections).indexOf(entry.target);
+                dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+            }
+        });
+    }, { threshold: 0.3 });
+    allSections.forEach(s => dotObserver.observe(s));
+
+    // Show dots after loader
+    setTimeout(() => dotsContainer.classList.add('visible'), 2000);
+
+    // ── Counter animation ──
+    const counters = document.querySelectorAll('.counter');
+    const counterDone = new Set();
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !counterDone.has(entry.target)) {
+                counterDone.add(entry.target);
+                animateCounter(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    counters.forEach(c => counterObserver.observe(c));
+
+    function animateCounter(el) {
+        const target = parseInt(el.dataset.target);
+        const suffix = el.dataset.suffix || '';
+        const prefix = el.dataset.prefix || '';
+        const useSeparator = el.dataset.separator;
+        const duration = 1200;
+        const start = performance.now();
+
+        function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            let current = Math.round(eased * target);
+            let display = current.toString();
+            if (useSeparator && current >= 1000) {
+                display = current.toLocaleString('en-US');
+            }
+            el.textContent = prefix + display + suffix;
+            if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+    }
+
+    // ── Lightbox ──
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lbImages = Array.from(document.querySelectorAll('[data-lightbox]'));
+    let lbIndex = 0;
+
+    lbImages.forEach((img, i) => {
+        img.addEventListener('click', () => {
+            lbIndex = i;
+            lightboxImg.src = img.src;
+            lightboxImg.alt = img.alt;
+            lightbox.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    function closeLightbox() {
+        lightbox.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    lightbox.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+    });
+
+    lightbox.querySelector('.lightbox-prev').addEventListener('click', (e) => {
+        e.stopPropagation();
+        lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length;
+        lightboxImg.src = lbImages[lbIndex].src;
+        lightboxImg.alt = lbImages[lbIndex].alt;
+    });
+    lightbox.querySelector('.lightbox-next').addEventListener('click', (e) => {
+        e.stopPropagation();
+        lbIndex = (lbIndex + 1) % lbImages.length;
+        lightboxImg.src = lbImages[lbIndex].src;
+        lightboxImg.alt = lbImages[lbIndex].alt;
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') lightbox.querySelector('.lightbox-prev').click();
+        if (e.key === 'ArrowRight') lightbox.querySelector('.lightbox-next').click();
+    });
+
+    // ── Scroll lock ──
     const sections = document.querySelectorAll('.snap-section');
     const visited = new Set();
     let locked = false;
