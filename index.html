@@ -126,7 +126,7 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.35);
             border: none;
             cursor: pointer;
             transition: background 0.3s, transform 0.3s;
@@ -898,6 +898,7 @@
         setTimeout(() => {
             const loader = document.getElementById('loader');
             loader.classList.add('fade-out');
+            dotsContainer.classList.add('visible');
             setTimeout(() => loader.remove(), 600);
         }, 1400);
     });
@@ -940,8 +941,6 @@
     }, { threshold: 0.3 });
     allSections.forEach(s => dotObserver.observe(s));
 
-    // Show dots after loader
-    setTimeout(() => dotsContainer.classList.add('visible'), 2000);
 
     // ── Counter animation ──
     const counters = document.querySelectorAll('.counter');
